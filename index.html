@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProxHelp - Expert Help, Just Around the Corner</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Add specific styles here or in styles.css -->
+    <style>
+      .slider-container {
+            position: relative;
+            width: 90%; /* Adjust width as needed */
+            max-width: 1200px; /* Max width */
+            height: 400px; /* Adjust height */
+            margin: 20px auto; /* Center slider */
+            overflow: hidden;
+            border-radius: 8px; /* Optional rounded corners */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        .slider {
+            display: flex;
+            height: 100%;
+            transition: transform 0.7s ease-in-out; /* Smoother transition */
+        }
+        .slider img {
+            width: 100%; /* Make image fill container width */
+            height: 100%;
+            object-fit: cover; /* Cover maintains aspect ratio */
+            flex-shrink: 0; /* Prevent images from shrinking */
+        }
+        .slider-nav-buttons { /* Renamed to avoid conflict if multiple sliders */
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+            padding: 0 15px; /* Padding from edges */
+            box-sizing: border-box;
+            pointer-events: none; /* Allow clicks through buttons container */
+        }
+        .slider-nav-buttons button {
+            background: rgba(0, 0, 0, 0.4);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50%; /* Circular buttons */
+            cursor: pointer;
+            font-size: 24px;
+            line-height: 1; /* Center symbol vertically */
+            transition: background-color 0.2s ease;
+            pointer-events: auto; /* Enable clicks on buttons themselves */
+            width: 45px; /* Fixed size */
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .slider-nav-buttons button:hover {
+             background: rgba(0, 0, 0, 0.7);
+        }
+         .info-links a:hover { text-decoration: underline; } /* Add hover effect */
+    </style>
+</head>
+<body>
+    <!-- Navbar Section -->
+    <nav class="navbar">
+        <div class="logo">ProxHelp</div>
+        <!-- Show Login/Signup for logged-out users -->
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About Us</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="signup.html">Sign Up</a></li>
+        </ul>
+        <!-- Alternative for Logged-In Users (would require JS to switch)
+        <ul class="nav-links">
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="/api/profile">My Profile</a></li>
+            <li><a href="/logout">Logout</a></li>
+        </ul>
+        -->
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>ProxHelp</h1>
+            <p>"Expert Help, Just Around the Corner"</p>
+            <!-- Search functionality might lead to professionals_list.html or be handled on dashboard -->
+            <div class="search-bar">
+                <input type="text" id="profession-search" placeholder="Search for professions (e.g., Plumber)">
+                <select id="location-search">
+                    <option value="" disabled selected>Select Location</option>
+                    <option value="Ratanpur">Ratanpur</option>
+                    <option value="Gangaganj">Gangaganj</option>
+                    <option value="Kalyanpur">Kalyanpur</option>
+                    <option value="Barra">Barra</option>
+                   <option value="Kidwainagar">Kidwainagar</option>
+                   <option value="Other">Other</option>
+                </select>
+                <button onclick="searchProfession()">Search</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Image Slider -->
+    <div class="slider-container">
+        <div class="slider">
+            <!-- Use descriptive alt text -->
+            <img src="slider_1.jpg" alt="Diverse professionals including doctor, electrician, plumber">
+            <img src="slider_2.jpg" alt="Workshop interior with tools for electrical and plumbing work">
+            <img src="slider_3.jpg" alt="Collage of professionals at work in various fields">
+            
+        </div>
+        <div class="slider-nav-buttons">
+            <button id="slider-prev">❮</button>
+            <button id="slider-next">❯</button>
+        </div>
+    </div>
+
+
+    <!-- About Us Section -->
+    <section class="about" id="about">
+        <h2>About ProxHelp</h2>
+        <p>
+            ProxHelp connects you with verified local professionals for a wide range of services, including healthcare, home repairs, tutoring, and more. We are dedicated to providing reliable and timely help right in your neighborhood. Find expert assistance, easily and quickly, just around the corner.
+        </p>
+    </section>
+
+    <!-- Professions Section -->
+    <section class="professions">
+        <h2>Our Professions</h2>
+        <div class="profession-list">
+             <!-- Link directly to the professionals list page, potentially pre-filtered -->
+            <div class="profession-item">
+                 <!-- Corrected: Link to professionals list, filtering handled there or on backend -->
+                <a href="professionals_list.html?profession=doctor">
+                    <img src="https://www.sonicseo.com/wp-content/uploads/2020/07/surgeon-768x768.jpg" alt="Doctor icon" style="height: 150px; width: 150px; object-fit: cover;">
+                    <p>Doctors</p>
+                </a>
+             </div>
+            <div class="profession-item">
+                <a href="professionals_list.html">
+                    <img src="https://png.pngtree.com/png-clipart/20231020/original/pngtree-power-lineman-electrician-png-image_13377739.png" alt="Electrician icon" style="height: 150px; width: 150px; object-fit: contain;">
+                    <p>Electricians</p>
+                </a>
+            </div>
+            <div class="profession-item">
+                <a href="professionals_list.html">
+                    <img src="https://png.pngtree.com/png-clipart/20231018/original/pngtree-plumber-working-and-fixing-png-image_13356325.png" alt="Plumber icon" style="height: 150px; width: 150px; object-fit: contain;">
+                    <p>Plumbers</p>
+                </a>
+            </div>
+             <div class="profession-item">
+                <a href="professionals_list.html">
+                    <img src="https://img.freepik.com/premium-vector/labour-day-background-with-silhouettes-people_659631-1104.jpg" alt="Labourer icon" style="height: 150px; width: 150px; object-fit: cover;">
+                    <p>Labourers</p>
+                </a>
+            </div>
+            <div class="profession-item">
+                 <a href="professionals_list.html">
+                    <img src="https://th.bing.com/th/id/OIP.LHpNX_7WYLR7oalwl5HY1wHaHa?rs=1&pid=ImgDetMain" alt="Teacher icon" style="height: 150px; width: 150px; object-fit: contain;">
+                    <p>Teachers</p>
+                </a>
+            </div>
+             <div class="profession-item">
+                <!-- Link to professionals list, maybe filtered for 'Pandit' specialization if added -->
+                <a href="professionals_list.html">
+                    <img src="https://hindupriestketuljoshi.co.uk/wp-content/uploads/2021/02/Wedding-priest-Hindu-wedding-priest-hindu-priest-in-uk-3-1.jpeg" alt="Pandit performing ceremony" style="height: 150px; width: 150px; object-fit: cover;">
+                    <p>Panditji</p>
+                </a>
+            </div>
+            <!-- Add more profession categories as needed -->
+        </div>
+
+        <!-- WhatsApp Floating Button -->
+        <div class="whatsapp-float">
+            <!-- Replace with your actual WhatsApp number -->
+            <a href="https://wa.me/+919555849811?text=Hello%20ProxHelp!" target="_blank" title="Chat with us on WhatsApp">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp Logo" class="whatsapp-logo">
+            </a>
+        </div>
+    </section>
+
+    <!-- Info Links Section -->
+    <div class="info-links" style="background-color: #232f3e; color: white; padding: 40px 20px;">
+        <div style="display: flex; justify-content: space-around; flex-wrap: wrap; max-width: 1200px; margin: auto; gap: 20px;">
+            <div style="min-width: 200px;">
+                <h3 style="margin-bottom: 15px; font-size: 1.1em;">Get to Know Us</h3>
+                <p><a href="#about" style="color: #ddd; text-decoration: none; font-size: 0.95em; line-height: 1.6;">About ProxHelp</a></p>
+                <p><a href="#" style="color: #ddd; text-decoration: none; font-size: 0.95em; line-height: 1.6;">Careers</a></p>
+                <p><a href="#" style="color: #ddd; text-decoration: none; font-size: 0.95em; line-height: 1.6;">Press Releases</a></p>
+            </div>
+            <div style="min-width: 200px;">
+                <h3 style="margin-bottom: 15px; font-size: 1.1em;">Connect with Us</h3>
+                <p><a href="https://www.facebook.com" target="_blank" style="color: #ddd; text-decoration: none; font-size: 0.95em; line-height: 1.6;">Facebook</a></p>
+                <p><a href="https://www.twitter.com" target="_blank" style="color: #ddd; text-decoration: none; font-size: 0.95em; line-height: 1.6;">Twitter</a></p>
+                <p><a href="https://www.instagram.com" target="_blank" style="color: #ddd; text-decoration: none; font-size: 0.95em; line-height: 1.6;">Instagram</a></p>
+            </div>
+            <div style="min-width: 200px;">
+                <h3 style="margin-bottom: 15px; font-size: 1.1em;">Make Money with Us</h3>
+                <p><a href="signup.html?role=professional" style="color: #ddd; text-decoration: none; font-size: 0.95em; line-height: 1.6;">Join as a Professional</a></p>
+                <p><a href="#" style="color: #ddd; text-decoration: none; font-size: 0.95em; line-height: 1.6;">Advertise Services</a></p>
+                <p><a href="#" style="color: #ddd; text-decoration: none; font-size: 0.95em; line-height: 1.6;">ProxHelp for Business</a></p>
+            </div>
+            <div style="min-width: 200px;">
+                <h3 style="margin-bottom: 15px; font-size: 1.1em;">Let Us Help You</h3>
+                <p><a href="login.html" style="color: #ddd; text-decoration: none; font-size: 0.95em; line-height: 1.6;">Your Account</a></p>
+                <p><a href="#" style="color: #ddd; text-decoration: none; font-size: 0.95em; line-height: 1.6;">Booking Help</a></p>
+                <p><a href="#" style="color: #ddd; text-decoration: none; font-size: 0.95em; line-height: 1.6;">Safety & Support</a></p>
+                <p><a href="mailto:support@proxhelp.example.com" style="color: #ddd; text-decoration: none; font-size: 0.95em; line-height: 1.6;">Contact Us</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer>
+        <p>© 2025 ProxHelp. All Rights Reserved. | <a href="#" style="color: #ccc;">Privacy Policy</a> | <a href="#" style="color: #ccc;">Terms of Service</a></p>
+    </footer>
+
+    <!-- JavaScript for Slider and Search -->
+    <script>
+        // --- Image Slider ---
+        let slideIndex = 0;
+        const slider = document.querySelector(".slider");
+        const slides = document.querySelectorAll(".slider img");
+        const totalSlides = slides.length;
+        const prevBtn = document.getElementById("slider-prev");
+        const nextBtn = document.getElementById("slider-next");
+        let slideInterval;
+
+        function updateSliderPosition() {
+            if (slider) {
+                 // Ensure index is within bounds (useful if dynamically adding/removing slides)
+                 if (slideIndex >= totalSlides) slideIndex = 0;
+                 if (slideIndex < 0) slideIndex = totalSlides - 1;
+                 slider.style.transform = `translateX(-${slideIndex * 100}%)`;
+            } else {
+                console.error("Slider element not found!");
+                stopSliderInterval(); // Stop interval if slider missing
+            }
+        }
+
+        function nextSlide() {
+            slideIndex++;
+            updateSliderPosition();
+        }
+
+        function prevSlide() {
+            slideIndex--;
+             updateSliderPosition();
+        }
+
+        function startSliderInterval() {
+            stopSliderInterval(); // Clear existing interval first
+            if (totalSlides > 1) { // Only auto-slide if more than one image
+                slideInterval = setInterval(nextSlide, 5000); // Change slide every 5 seconds
+            }
+        }
+
+         function stopSliderInterval() {
+              clearInterval(slideInterval);
+         }
+
+        if (prevBtn && nextBtn && slider && totalSlides > 0) {
+            nextBtn.addEventListener("click", () => {
+                nextSlide();
+                startSliderInterval(); // Reset interval timer on manual navigation
+            });
+            prevBtn.addEventListener("click", () => {
+                 prevSlide();
+                 startSliderInterval(); // Reset interval timer
+            });
+
+             // Pause on hover
+             const sliderContainer = document.querySelector('.slider-container');
+             if(sliderContainer){
+                 sliderContainer.addEventListener('mouseenter', stopSliderInterval);
+                 sliderContainer.addEventListener('mouseleave', startSliderInterval);
+             }
+
+            // Initial setup
+            updateSliderPosition(); // Show first slide
+            startSliderInterval(); // Start automatic sliding
+
+        } else {
+            if (totalSlides <= 1 && slider) console.log("Slider requires more than one image to navigate.");
+            else console.error("Slider elements (container, slider, buttons, or images) not found or no images present.");
+        }
+
+
+        // --- Search Function (Placeholder) ---
+        function searchProfession() {
+            const profession = document.getElementById('profession-search').value;
+            const location = document.getElementById('location-search').value;
+            console.log("Searching for:", { profession, location });
+            // Redirect to professionals list page with search parameters
+            // The professionals_list.html page would need JS to parse these params and filter results (or backend handles filtering)
+            const queryParams = new URLSearchParams();
+            if (profession) queryParams.set('profession', profession);
+            if (location) queryParams.set('location', location);
+
+            // Redirect to the professionals list page
+            // Make sure 'professionals_list.html' is the correct filename
+            window.location.href = `professionals_list.html?${queryParams.toString()}`;
+        }
+
+    </script>
+</body>
+</html>

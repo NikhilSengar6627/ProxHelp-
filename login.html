@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProxHelp - Login</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* General styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            background-color: #333;
+            padding: 1rem;
+        }
+
+        .navbar .logo {
+            color: white;
+            text-decoration: none;
+            font-size: 1.5rem;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Auth form section */
+        .auth-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 80vh;
+        }
+
+        .auth-form {
+            width: 300px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .auth-form h2 {
+            text-align: center;
+        }
+
+        /* Floating Label styles */
+        .form-control {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .form-control label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 16px;
+            color: #777;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .form-control input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .form-control input:focus + label,
+        .form-control input:not(:placeholder-shown) + label {
+            top: -10px;
+            left: 10px;
+            font-size: 12px;
+            color: #333;
+            background-color: white;
+            padding: 0 5px;
+        }
+
+        .whatsapp-float {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+        }
+
+        .whatsapp-float img {
+            width: 50px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="navbar">
+        <a href="index.html" class="logo">ProxHelp</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="#about">About Us</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="signup.html">Sign Up</a></li>
+        </ul>
+    </div>
+
+    <!-- Login Form Section -->
+    <section class="auth-section">
+        <div class="auth-form">
+            <h2>Login to ProxHelp</h2>
+            <form action="#" method="POST">
+                <div class="form-control">
+                    <input type="email" id="email" name="email" placeholder=" " required>
+                    <label for="email">Email</label>
+                </div>
+
+                <div class="form-control">
+                    <input type="password" id="password" name="password" placeholder=" " required>
+                    <label for="password">Password</label>
+                </div>
+
+                <button type="submit">Login</button>
+                <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
+            </form>
+        </div>
+        <div class="whatsapp-float">
+            <a href="https://wa.me/+919555849811" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp Logo" class="whatsapp-logo">
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 ProxHelp. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>

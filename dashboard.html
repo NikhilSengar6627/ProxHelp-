@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProxHelp - Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .profile-section-container { padding: 20px; max-width: 800px; margin: 30px auto; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: none; }
+        .profile-section-container h3 { text-align: center; margin-top: 0; margin-bottom: 25px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .profile-view label { display: block; margin-top: 15px; font-weight: bold; margin-bottom: 5px; color: #555; }
+        .profile-view span.display-field { display: block; margin-bottom: 10px; padding: 10px; border: 1px solid #ccc; background-color: #e9ecef; border-radius: 4px; color: #495057; min-height: 40px; line-height: 1.5; word-wrap: break-word; }
+        .profile-view input[type="text"], .profile-view input[type="email"], .profile-view input[type="number"], .profile-view textarea { width: 100%; padding: 10px; font-size: 1em; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 10px; }
+        .profile-view textarea { min-height: 80px; resize: vertical; }
+        .profile-view input:focus, .profile-view textarea:focus { border-color: #007bff; box-shadow: 0 0 0 2px rgba(0,123,255,.25); outline: none; }
+        .profile-view button.save-btn { padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; font-weight: bold; margin-top: 15px; transition: background-color 0.2s ease; display: block; margin-left: auto; margin-right: auto; }
+        .profile-view button.save-btn:hover { background-color: #218838; }
+        .profile-view button:disabled { background-color: #aaa; cursor: not-allowed; }
+        #profileMessage { margin-top: 20px; font-weight: bold; padding: 12px; border-radius: 5px; text-align: center; display: none; }
+        #profileMessage.success { color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb; }
+        #profileMessage.error { color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; }
+        .bookings-section-container { padding: 20px; max-width: 950px; margin: 30px auto; border: 1px solid #ddd; border-radius: 8px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .bookings-section-container h3 { text-align: center; margin-bottom: 20px; color: #333; }
+        #bookingsTable { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        #bookingsTable th, #bookingsTable td { border: 1px solid #ddd; padding: 10px 12px; text-align: left; font-size: 0.95em; vertical-align: middle; }
+        #bookingsTable th { background-color: #f2f2f2; font-weight: bold; }
+        #bookingsTable tr:nth-child(even) { background-color: #f9f9f9; }
+        #bookingsTable tr:hover { background-color: #f1f1f1; }
+        #bookingsTable .status-pending { color: #e67e22; font-weight: bold; }
+        #bookingsTable .status-confirmed { color: #2980b9; font-weight: bold; }
+        #bookingsTable .status-completed { color: #27ae60; font-weight: bold; }
+        #bookingsTable .status-cancelled { color: #c0392b; text-decoration: line-through; }
+        #bookingsTable .action-cell { text-align: center; white-space: nowrap; }
+        #bookingsTable .action-button { border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em; margin: 0 3px; transition: opacity 0.2s; color: white; }
+        #bookingsTable .action-button:hover { opacity: 0.85; }
+        #bookingsTable .action-button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-accept { background-color: #27ae60; }
+        .btn-complete { background-color: #2980b9; }
+        .btn-cancel { background-color: #c0392b; }
+        .btn-review { background-color: #f39c12; }
+        #noBookingsMessage, #loadingBookingsMsg { text-align: center; font-style: italic; padding: 20px; color: #777;}
+        #bookingErrorMessage { color: red; text-align: center; margin-top: 15px; display: none; }
+        .review-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
+        .review-modal-content { background-color: #fefefe; margin: 10% auto; padding: 25px; border: 1px solid #888; width: 90%; max-width: 500px; border-radius: 8px; }
+        .review-modal-content h4 { margin-top: 0; margin-bottom: 15px; }
+        .star-rating { display: inline-block; unicode-bidi: bidi-override; direction: rtl; }
+        .star-rating input[type="radio"] { display: none; }
+        .star-rating label { font-size: 2.2em; color: lightgrey; cursor: pointer; padding: 0 2px; transition: color 0.2s; }
+        .star-rating label:hover, .star-rating label:hover ~ label, .star-rating input[type="radio"]:checked ~ label { color: gold; }
+        .review-modal textarea { width: 100%; min-height: 70px; margin-top: 10px; margin-bottom: 15px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .review-modal button { padding: 10px 15px; margin-right: 10px; border-radius: 5px; cursor: pointer; border: none; font-size: 1em; }
+        .review-modal button[type="submit"] { background-color: #28a745; color: white; }
+        .review-modal button[type="button"] { background-color: #ccc; }
+        #reviewMessage { margin-top: 15px; font-weight: bold; text-align: center; padding: 10px; border-radius: 4px; }
+        #reviewMessage.success { color: green; background-color: #e6ffed; border: 1px solid green; }
+        #reviewMessage.error { color: red; background-color: #ffe6e6; border: 1px solid red; }
+        .slider-container { max-width: 1200px; margin: 20px auto; position: relative; overflow: hidden; height: 400px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .slider { display: flex; height: 100%; transition: transform 0.7s ease-in-out;}
+        .slider img { width: 100%; height: 100%; object-fit: cover; flex-shrink: 0;}
+        .slider-nav-buttons { position: absolute; top: 50%; width: 100%; display: flex; justify-content: space-between; transform: translateY(-50%); padding: 0 15px; box-sizing: border-box; pointer-events: none; }
+        .slider-nav-buttons button { background: rgba(0, 0, 0, 0.4); color: white; border: none; padding: 10px 15px; border-radius: 50%; cursor: pointer; font-size: 24px; pointer-events: auto; width: 45px; height: 45px; display:flex; align-items:center; justify-content:center; transition: background-color 0.2s ease; }
+        .slider-nav-buttons button:hover { background: rgba(0, 0, 0, 0.7); }
+        .professions { background-color: #fff; padding: 50px 20px; text-align: center; }
+        .professions h2 { font-size: 36px; margin-bottom: 40px; }
+        .profession-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; }
+        .profession-item { text-align: center; width: 150px; }
+        .profession-item a { text-decoration: none; color: inherit; }
+        .profession-item img { width: 100%; height: 150px; object-fit: cover; border-radius: 10px; transition: transform 0.3s ease; border: 1px solid #eee; }
+        .profession-item img:hover { transform: scale(1.05); }
+        .profession-item p { margin-top: 10px; font-size: 18px; color: #333; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">ProxHelp</div>
+        <ul class="nav-links">
+            <li><a href="dashboard.html">Home</a></li>
+            <li><a href="#about">About Us</a></li>
+            <li><a href="#" id="myProfileLink">My Profile</a></li>
+            <li><a href="index.html">Logout</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero" id="home">
+         <div class="hero-content">
+            <h1>Dashboard</h1>
+            <p>Manage your profile and bookings. Find Professionals.</p>
+             <div class="search-bar">
+                <input type="text" id="profession-search" placeholder="Search Professionals...">
+                <select id="location-search">
+                    <option value="" disabled selected>Location</option>
+                    <option value="Ratanpur">Ratanpur</option>
+                    <option value="Gangaganj">Gangaganj</option>
+                    <option value="Kalyanpur">Kalyanpur</option>
+                    <option value="Barra">Barra</option>
+                    <option value="Kidwainagar">Kidwainagar</option>
+                </select>
+                <button onclick="searchProfession()">Search</button>
+            </div>
+        </div>
+    </section>
+    <br>
+
+    <div class="slider-container">
+         <div class="slider"> <img src="slider_1.jpg" alt="Professionals Banner"> <img src="slider_2.jpg" alt="Tools Banner"> <img src="slider_3.jpg" alt="Services Banner">  </div>
+         <div class="slider-nav-buttons"> <button id="slider-prev">❮</button> <button id="slider-next">❯</button> </div>
+    </div>
+
+    <section id="profileSection" class="profile-section-container">
+        <h3>My Profile</h3>
+        <div id="profileMessage"></div>
+        <div id="userProfileView" class="profile-view" style="display: none;">
+            <label>Username:</label> <span id="userProfileUsername" class="display-field">...</span>
+            <label>Email:</label> <span id="userProfileEmail" class="display-field">...</span>
+            <label for="userProfileContact">Contact Number:</label> <input type="text" id="userProfileContact" placeholder="Enter phone">
+            <button id="saveUserContactBtn" class="save-btn">Save Contact</button>
+        </div>
+        <div id="professionalProfileView" class="profile-view" style="display: none;">
+             <label>Username:</label> <span id="profProfileUsername" class="display-field">...</span>
+             <label>Email:</label> <span id="profProfileEmail" class="display-field">...</span>
+             <label for="profProfileContact">Contact Number:</label> <input type="text" id="profProfileContact">
+             <label for="profProfileSpec">Specialization:</label> <input type="text" id="profProfileSpec">
+             <label for="profProfileLocation">Location:</label> <input type="text" id="profProfileLocation">
+             <label for="profProfilePrice">Price/Hour (e.g., 50.00):</label> <input type="number" id="profProfilePrice" step="0.01" min="0">
+             <label for="profProfileAbout">About:</label> <textarea id="profProfileAbout"></textarea>
+             <button id="saveProfessionalProfileBtn" class="save-btn">Save Profile</button>
+        </div>
+    </section>
+
+    <section id="bookingsSection" class="bookings-section-container">
+        <h3 id="bookingsHeader">My Bookings</h3>
+        <div id="bookingsList">
+            <p id="loadingBookingsMsg">Loading bookings...</p>
+            <p id="noBookingsMessage" style="display: none;">No bookings found.</p>
+            <table id="bookingsTable" style="display: none;"><thead><tr></tr></thead><tbody id="bookingsTableBody"></tbody></table>
+        </div>
+         <div id="bookingErrorMessage" style="display: none;"></div>
+    </section>
+
+    <div id="reviewModal" class="review-modal">
+        <div class="review-modal-content">
+            <h4>Leave a Review</h4>
+            <form id="reviewForm">
+                <input type="hidden" id="reviewBookingId"><input type="hidden" id="reviewProfessionalId">
+                <p>Rating:</p>
+                <div class="star-rating">
+                    <input type="radio" id="star5" name="rating" value="5" required><label for="star5" title="5 stars">★</label>
+                    <input type="radio" id="star4" name="rating" value="4"><label for="star4" title="4 stars">★</label>
+                    <input type="radio" id="star3" name="rating" value="3"><label for="star3" title="3 stars">★</label>
+                    <input type="radio" id="star2" name="rating" value="2"><label for="star2" title="2 stars">★</label>
+                    <input type="radio" id="star1" name="rating" value="1"><label for="star1" title="1 star">★</label>
+                 </div> <br>
+                <label for="reviewComment" style="margin-top: 15px; display:block;">Comment (Optional):</label>
+                <textarea id="reviewComment" rows="4"></textarea>
+                <button type="submit">Submit Review</button>
+                <button type="button" onclick="closeReviewModal()">Cancel</button>
+                 <div id="reviewMessage"></div>
+            </form>
+        </div>
+    </div>
+
+    <section class="about" id="about"><h2>About ProxHelp</h2><p>ProxHelp connects you with verified professionals like doctors, electricians, plumbers, and more...</p></section>
+
+    <section class="professions">
+        <h2>Browse Professions</h2>
+        <div class="profession-list">
+            <div class="profession-item">
+                <a href="professionals_list.html?profession=doctor">
+                    <img src="https://www.sonicseo.com/wp-content/uploads/2020/07/surgeon-768x768.jpg" alt="Doctor">
+                    <p>Doctors</p>
+                </a>
+             </div>
+            <div class="profession-item">
+                <a href="professionals_list.html?profession=electrician">
+                    <img src="https://png.pngtree.com/png-clipart/20231020/original/pngtree-power-lineman-electrician-png-image_13377739.png" alt="Electrician">
+                    <p>Electricians</p>
+                </a>
+            </div>
+             <div class="profession-item">
+                <a href="professionals_list.html?profession=plumber">
+                    <img src="https://png.pngtree.com/png-clipart/20231018/original/pngtree-plumber-working-and-fixing-png-image_13356325.png" alt="Plumber">
+                    <p>Plumbers</p>
+                </a>
+            </div>
+            <div class="profession-item">
+                <a href="professionals_list.html?profession=labour">
+                    <img src="https://img.freepik.com/premium-vector/labour-day-background-with-silhouettes-people_659631-1104.jpg" alt="Labour">
+                    <p>Labourers</p>
+                </a>
+            </div>
+             <div class="profession-item">
+                <a href="professionals_list.html?profession=teacher">
+                    <img src="https://th.bing.com/th/id/OIP.LHpNX_7WYLR7oalwl5HY1wHaHa?rs=1&pid=ImgDetMain" alt="Teacher">
+                    <p>Teachers</p>
+                </a>
+            </div>
+             <div class="profession-item">
+                <a href="professionals_list.html?profession=pandit">
+                    <img src="https://hindupriestketuljoshi.co.uk/wp-content/uploads/2021/02/Wedding-priest-Hindu-wedding-priest-hindu-priest-in-uk-3-1.jpeg" alt="Pandit">
+                    <p>Panditji</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <div class="info-links" style="background-color: #232f3e; color: white; padding: 40px 20px;"> <div style="display: flex; justify-content: space-around; flex-wrap: wrap; max-width: 1200px; margin: auto; gap: 20px;"> <div><h3>Know Us</h3><p><a href="#about" style="color:#ddd;text-decoration:none;">About</a></p><p><a href="#" style="color:#ddd;text-decoration:none;">Careers</a></p></div> <div><h3>Connect</h3><p><a href="#" style="color:#ddd;text-decoration:none;">Facebook</a></p><p><a href="#" style="color:#ddd;text-decoration:none;">Twitter</a></p></div> <div><h3>Make Money</h3><p><a href="signup.html?role=professional" style="color:#ddd;text-decoration:none;">Join</a></p><p><a href="#" style="color:#ddd;text-decoration:none;">Advertise</a></p></div> <div><h3>Help</h3><p><a href="#profileSection" id="profileHelpLink" style="color:#ddd;text-decoration:none;">Account</a></p><p><a href="#" style="color:#ddd;text-decoration:none;">Booking Help</a></p></div> </div></div>
+
+    <footer><p>© 2024 ProxHelp | <a href="#" style="color:#ccc;">Privacy</a> | <a href="#" style="color:#ccc;">Terms</a></p></footer>
+
+    <script>
+        const profileSectionContainer = document.getElementById('profileSection');
+        const profileLink = document.getElementById('myProfileLink');
+        const profileHelpLink = document.getElementById('profileHelpLink');
+        const profileMessage = document.getElementById('profileMessage');
+        const userProfileView = document.getElementById('userProfileView');
+        const userProfileUsername = document.getElementById('userProfileUsername');
+        const userProfileEmail = document.getElementById('userProfileEmail');
+        const userProfileContact = document.getElementById('userProfileContact');
+        const saveUserContactBtn = document.getElementById('saveUserContactBtn');
+        const professionalProfileView = document.getElementById('professionalProfileView');
+        const profProfileUsername = document.getElementById('profProfileUsername');
+        const profProfileEmail = document.getElementById('profProfileEmail');
+        const profProfileContact = document.getElementById('profProfileContact');
+        const profProfileSpec = document.getElementById('profProfileSpec');
+        const profProfileLocation = document.getElementById('profProfileLocation');
+        const profProfilePrice = document.getElementById('profProfilePrice');
+        const profProfileAbout = document.getElementById('profProfileAbout');
+        const saveProfessionalProfileBtn = document.getElementById('saveProfessionalProfileBtn');
+        const bookingsSection = document.getElementById('bookingsSection');
+        const bookingsHeader = document.getElementById('bookingsHeader');
+        const loadingBookingsMsg = document.getElementById('loadingBookingsMsg');
+        const noBookingsMessage = document.getElementById('noBookingsMessage');
+        const bookingsTable = document.getElementById('bookingsTable');
+        const bookingsTableBody = document.getElementById('bookingsTableBody');
+        const bookingErrorMessage = document.getElementById('bookingErrorMessage');
+        const reviewModal = document.getElementById('reviewModal');
+        const reviewForm = document.getElementById('reviewForm');
+        const reviewBookingIdInput = document.getElementById('reviewBookingId');
+        const reviewProfessionalIdInput = document.getElementById('reviewProfessionalId');
+        const reviewCommentInput = document.getElementById('reviewComment');
+        const reviewMessageDiv = document.getElementById('reviewMessage');
+
+        let currentUserRole = null;
+
+        function showProfileMessage(message, type) { if (profileMessage) { profileMessage.textContent = message; profileMessage.className = type; profileMessage.style.display = 'block'; } else { console.error("Profile message element missing"); alert(`${type}: ${message}`); } }
+        function clearProfileMessage() { if (profileMessage) { profileMessage.style.display = 'none'; profileMessage.textContent = ''; profileMessage.className = ''; } }
+        function formatDate(dateString) { if (!dateString) return 'N/A'; try { const d = new Date(dateString + 'T00:00:00Z'); return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); } catch (e) { return dateString; } }
+
+        async function fetchAndDisplayProfile() {
+            clearProfileMessage();
+            if (userProfileView) userProfileView.style.display = 'none'; if (professionalProfileView) professionalProfileView.style.display = 'none';
+            if (userProfileUsername) userProfileUsername.textContent = '...'; if (userProfileEmail) userProfileEmail.textContent = '...';
+            if (profProfileUsername) profProfileUsername.textContent = '...'; if (profProfileEmail) profProfileEmail.textContent = '...';
+
+            try {
+                const response = await fetch('/api/profile');
+                if (!response.ok) { if (response.status === 401) { window.location.href = '/login.html?message=Session+expired'; return; } let msg = `HTTP ${response.status}`; try { const d = await response.json(); msg = d.message || msg; } catch (e) {} throw new Error(msg); }
+                const data = await response.json();
+                if (!data.success || !data.user) throw new Error(data.message || 'Failed to fetch profile');
+                const user = data.user;
+                currentUserRole = user.role;
+
+                if (user.role === 'user') {
+                    if (!userProfileView || !userProfileUsername || !userProfileEmail || !userProfileContact) throw new Error("User profile elements missing");
+                    userProfileUsername.textContent = user.username || 'N/A'; userProfileEmail.textContent = user.email || 'N/A';
+                    userProfileContact.value = user.contact_number || ''; userProfileView.style.display = 'block';
+                } else if (user.role === 'professional') {
+                    if (!professionalProfileView || !profProfileUsername || !profProfileEmail || !profProfileContact || !profProfileSpec || !profProfileLocation || !profProfilePrice || !profProfileAbout ) throw new Error("Prof profile elements missing");
+                    profProfileUsername.textContent = user.username || 'N/A'; profProfileEmail.textContent = user.email || 'N/A';
+                    profProfileContact.value = user.contact_number || ''; profProfileSpec.value = user.specialization || '';
+                    profProfileLocation.value = user.location || ''; profProfilePrice.value = user.price_per_hour != null ? parseFloat(user.price_per_hour).toFixed(2) : '';
+                    profProfileAbout.value = user.about_me || ''; professionalProfileView.style.display = 'block';
+                } else { throw new Error(`Unknown role: ${user.role}`); }
+                fetchAndDisplayBookings(currentUserRole);
+            } catch (error) { console.error('Profile fetch/display error:', error); showProfileMessage(`Error loading profile: ${error.message}`, 'error'); }
+        }
+        async function updateContactNumber(event) {
+            event.preventDefault(); clearProfileMessage(); const btn = event.target; btn.disabled = true; btn.textContent = 'Saving...';
+            const inputEl = (btn.id === 'saveUserContactBtn') ? userProfileContact : profProfileContact;
+            const contactNumber = inputEl ? inputEl.value.trim() : null;
+            const phoneRegex = /^\+?[0-9\s\-()]{7,20}$/;
+            if (contactNumber && !phoneRegex.test(contactNumber)) { showProfileMessage('Invalid phone format', 'error'); btn.disabled = false; btn.textContent = (btn.id === 'saveUserContactBtn') ? 'Save Contact' : 'Save Profile'; return; }
+            try {
+                const response = await fetch('/api/profile/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contactNumber: contactNumber || null }) });
+                const result = await response.json(); if (!response.ok || !result.success) throw new Error(result.message || `Err ${response.status}`);
+                showProfileMessage(result.message || 'Contact updated!', 'success');
+                if (userProfileContact && professionalProfileView.style.display !== 'none') userProfileContact.value = contactNumber || '';
+                if (profProfileContact && userProfileView.style.display !== 'none') profProfileContact.value = contactNumber || '';
+            } catch (error) { console.error('Update contact error:', error); showProfileMessage(`Failed: ${error.message}`, 'error'); }
+            finally { btn.disabled = false; btn.textContent = (btn.id === 'saveUserContactBtn') ? 'Save Contact' : 'Save Profile'; }
+        }
+        async function updateProfessionalProfile(event) {
+            event.preventDefault(); clearProfileMessage(); const btn = event.target; btn.disabled = true; btn.textContent = 'Saving...';
+            const profileData = { contact_number: profProfileContact.value.trim(), specialization: profProfileSpec.value.trim(), location: profProfileLocation.value.trim(), price_per_hour: profProfilePrice.value.trim(), about_me: profProfileAbout.value.trim() };
+            const phoneRegex = /^\+?[0-9\s\-()]{7,20}$/;
+            if (profileData.contact_number && !phoneRegex.test(profileData.contact_number)) { showProfileMessage('Invalid contact format', 'error'); btn.disabled = false; btn.textContent = 'Save Profile'; return; }
+            if (profileData.price_per_hour && (isNaN(parseFloat(profileData.price_per_hour)) || parseFloat(profileData.price_per_hour) < 0)) { showProfileMessage('Invalid price format', 'error'); btn.disabled = false; btn.textContent = 'Save Profile'; return; }
+            try {
+                const response = await fetch('/api/profile/professional', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(profileData) });
+                const result = await response.json(); if (!response.ok || !result.success) throw new Error(result.message || `Err ${response.status}`);
+                showProfileMessage(result.message || 'Profile updated!', 'success');
+            } catch (error) { console.error('Update prof profile error:', error); showProfileMessage(`Failed: ${error.message}`, 'error'); }
+            finally { btn.disabled = false; btn.textContent = 'Save Profile'; }
+        }
+        function toggleProfileSection(event) {
+            event.preventDefault(); if (!profileSectionContainer) return;
+            const isHidden = profileSectionContainer.style.display === 'none' || profileSectionContainer.style.display === '';
+            profileSectionContainer.style.display = isHidden ? 'block' : 'none';
+            if (isHidden) { fetchAndDisplayProfile(); profileSectionContainer.scrollIntoView({ behavior: 'smooth' }); }
+             else { clearProfileMessage(); }
+        }
+
+        async function fetchAndDisplayBookings(role) {
+            if (!role) return;
+            loadingBookingsMsg.style.display = 'block'; noBookingsMessage.style.display = 'none'; bookingsTable.style.display = 'none'; bookingsTableBody.innerHTML = ''; bookingErrorMessage.style.display = 'none';
+            const apiUrl = (role === 'user') ? '/api/bookings/user' : '/api/bookings/professional';
+            const isUserView = (role === 'user');
+            bookingsHeader.textContent = isUserView ? "My Booking History" : "Bookings Assigned To Me";
+            const headers = isUserView ? `<th>ID</th><th>Professional</th><th>Service</th><th>Date</th><th>Time</th><th>Status</th><th>Action</th>` : `<th>ID</th><th>Client</th><th>Contact</th><th>Date</th><th>Time</th><th>Address</th><th>Issue</th><th>Status</th><th>Actions</th>`;
+            bookingsTable.querySelector('thead tr').innerHTML = headers;
+
+            try {
+                const response = await fetch(apiUrl); if (!response.ok) { if (response.status === 401) { window.location.href = '/login.html?message=Session+expired'; return; } let msg = `HTTP ${response.status}`; try {const d=await response.json(); msg = d.message||msg;}catch(e){} throw new Error(msg); }
+                const data = await response.json(); loadingBookingsMsg.style.display = 'none';
+                if (!data.success || !data.bookings) throw new Error(data.message || "Could not get bookings");
+
+                if (data.bookings.length > 0) {
+                    data.bookings.forEach(b => {
+                        const row = bookingsTableBody.insertRow(); row.id = `booking-row-${b.id}`; const statusClass = `status-${b.status}`; let actionsHtml = '-';
+                        if (isUserView) {
+                            if (b.status === 'completed' && !b.reviewed) actionsHtml = `<button class="action-button btn-review" onclick="openReviewModal(${b.id}, ${b.professional_id})">Review</button>`; else if (b.reviewed) actionsHtml = 'Reviewed';
+                            row.innerHTML = `<td>${b.id}</td><td>${b.professional_name || '?'}</td><td>${b.professional_specialization || '?'}</td><td>${formatDate(b.booking_date)}</td><td>${b.booking_time || 'Any'}</td><td class="${statusClass}">${b.status}</td><td class="action-cell">${actionsHtml}</td>`;
+                        } else {
+                            if (b.status === 'pending') actionsHtml = `<button class="action-button btn-accept" onclick="updateBookingStatus(${b.id}, 'confirmed', this)">Accept</button> <button class="action-button btn-cancel" onclick="updateBookingStatus(${b.id}, 'cancelled', this)">Cancel</button>`;
+                            else if (b.status === 'confirmed') actionsHtml = `<button class="action-button btn-complete" onclick="updateBookingStatus(${b.id}, 'completed', this)">Complete</button> <button class="action-button btn-cancel" onclick="updateBookingStatus(${b.id}, 'cancelled', this)">Cancel</button>`;
+                            else if (b.status === 'completed') actionsHtml = 'Completed'; else if (b.status === 'cancelled') actionsHtml = 'Cancelled';
+                            row.innerHTML = `<td>${b.id}</td><td>${b.user_username || '?'}</td><td>${b.user_contact || '?'}</td><td>${formatDate(b.booking_date)}</td><td>${b.booking_time || 'Any'}</td><td>${b.user_address || ''}</td><td>${b.problem_description || ''}</td><td class="${statusClass}">${b.status}</td><td class="action-cell">${actionsHtml}</td>`;
+                        }
+                    });
+                    bookingsTable.style.display = 'table';
+                } else { noBookingsMessage.textContent = isUserView ? "No bookings yet." : "No assigned bookings."; noBookingsMessage.style.display = 'block'; }
+            } catch (error) { console.error("Booking fetch/display error:", error); loadingBookingsMsg.style.display = 'none'; bookingErrorMessage.textContent = `Error loading bookings: ${error.message}`; bookingErrorMessage.style.display = 'block'; }
+        }
+        async function updateBookingStatus(bookingId, newStatus, buttonElement) {
+            if (!bookingId || !newStatus) return;
+            if(buttonElement) buttonElement.disabled = true;
+            const row = buttonElement ? buttonElement.closest('tr') : document.querySelector(`#booking-row-${bookingId}`);
+            if(row) row.querySelectorAll('.action-button').forEach(btn => btn.disabled = true);
+            bookingErrorMessage.style.display = 'none';
+            try {
+                const response = await fetch(`/api/bookings/${bookingId}/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ newStatus }) });
+                const result = await response.json(); if (!response.ok || !result.success) throw new Error(result.message || `Failed update (HTTP ${response.status})`);
+                showProfileMessage(result.message || `Booking updated to ${newStatus}.`, 'success');
+                if(currentUserRole) fetchAndDisplayBookings(currentUserRole);
+            } catch (error) { console.error(`Update booking ${bookingId} error:`, error); bookingErrorMessage.textContent = `Error: ${error.message}`; bookingErrorMessage.style.display = 'block'; if(row) row.querySelectorAll('.action-button').forEach(btn => btn.disabled = false); }
+        }
+
+        function openReviewModal(bookingId, professionalId) { if (!reviewModal || !reviewForm) return; reviewBookingIdInput.value = bookingId; reviewProfessionalIdInput.value = professionalId; reviewForm.reset(); reviewMessageDiv.textContent = ''; reviewMessageDiv.className = ''; reviewModal.style.display = 'block'; }
+        function closeReviewModal() { if (reviewModal) reviewModal.style.display = 'none'; }
+        async function submitReview(event) {
+            event.preventDefault(); reviewMessageDiv.textContent = 'Submitting...'; reviewMessageDiv.className = ''; const btn = reviewForm.querySelector('button[type="submit"]'); btn.disabled = true;
+            const formData = { bookingId: reviewBookingIdInput.value, professionalId: reviewProfessionalIdInput.value, rating: reviewForm.elements['rating'].value, comment: reviewCommentInput.value.trim() };
+            if (!formData.rating) { reviewMessageDiv.textContent = 'Select star rating'; reviewMessageDiv.className = 'error'; btn.disabled = false; return; }
+            try {
+                const response = await fetch('/api/reviews', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
+                const result = await response.json(); if (!response.ok || !result.success) throw new Error(result.message || `Err ${response.status}`);
+                reviewMessageDiv.textContent = result.message || "Review submitted!"; reviewMessageDiv.className = 'success';
+                setTimeout(() => { closeReviewModal(); if (currentUserRole) fetchAndDisplayBookings(currentUserRole); }, 1500);
+            } catch (error) { console.error("Submit review error:", error); reviewMessageDiv.textContent = `Error: ${error.message}`; reviewMessageDiv.className = 'error'; btn.disabled = false; }
+        }
+        if (reviewForm) reviewForm.addEventListener('submit', submitReview);
+
+        if (profileLink) profileLink.addEventListener('click', toggleProfileSection);
+        if (profileHelpLink) profileHelpLink.addEventListener('click', toggleProfileSection);
+        if (saveUserContactBtn) saveUserContactBtn.addEventListener('click', updateContactNumber);
+        if (saveProfessionalProfileBtn) saveProfessionalProfileBtn.addEventListener('click', updateProfessionalProfile);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchAndDisplayProfile().catch(err => console.error("Initial profile fetch failed:", err));
+        });
+
+        let slideIndex=0; const slider=document.querySelector(".slider"); const slides=slider?slider.querySelectorAll("img"):[]; const totalSlides=slides.length; const prevBtn=document.getElementById("slider-prev"); const nextBtn=document.getElementById("slider-next"); let slideInterval; function updateSliderPosition(){if(slider&&totalSlides>0){if(slideIndex>=totalSlides)slideIndex=0;if(slideIndex<0)slideIndex=totalSlides-1;slider.style.transform=`translateX(-${slideIndex*100}%)`}} function nextSlide(){slideIndex++;updateSliderPosition()} function prevSlide(){slideIndex--;updateSliderPosition()} function startSliderInterval(){stopSliderInterval();if(totalSlides>1){slideInterval=setInterval(nextSlide,5000)}} function stopSliderInterval(){clearInterval(slideInterval)} if(prevBtn&&nextBtn&&slider&&totalSlides>0){nextBtn.addEventListener("click",()=>{nextSlide();startSliderInterval()}); prevBtn.addEventListener("click",()=>{prevSlide();startSliderInterval()}); const c=document.querySelector('.slider-container');if(c){c.addEventListener('mouseenter',stopSliderInterval);c.addEventListener('mouseleave',startSliderInterval)} updateSliderPosition();startSliderInterval()}else{console.log("Slider init fail.");}
+        function searchProfession(){const p=document.getElementById('profession-search').value; const l=document.getElementById('location-search').value; const q=new URLSearchParams(); if(p)q.set('profession',p); if(l)q.set('location',l); window.location.href=`professionals_list.html?${q.toString()}`}
+    </script>
+</body>
+</html>

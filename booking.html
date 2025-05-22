@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Booking - ProxHelp</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Styles specific to this page - move to styles.css if preferred */
+        .booking-section {
+             padding: 30px;
+             max-width: 700px;
+             margin: 30px auto;
+             border: 1px solid #ddd;
+             border-radius: 8px;
+             background: #fff;
+             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+         .booking-section h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #333;
+         }
+        .professional-details {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            border: 1px solid #eee;
+        }
+         .professional-details h4 {
+             margin-top: 0;
+             margin-bottom: 15px;
+             border-bottom: 1px solid #ddd;
+             padding-bottom: 10px;
+         }
+         .professional-details p { margin: 8px 0; }
+
+        .booking-form label {
+            display: block;
+            margin-top: 18px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #444;
+        }
+        .booking-form input[type="date"],
+        .booking-form input[type="time"],
+        .booking-form textarea,
+        .booking-form input[type="text"] /* Added for consistency */
+        {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+        .booking-form textarea { min-height: 100px; resize: vertical; }
+        .booking-form input:focus, .booking-form textarea:focus {
+             border-color: #007bff;
+             box-shadow: 0 0 0 2px rgba(0,123,255,.25);
+             outline: none;
+        }
+        .booking-form button {
+             background-color: #28a745; /* Green for submit */
+             color: white;
+             border: none;
+             padding: 14px 25px;
+             border-radius: 5px;
+             cursor: pointer;
+             font-size: 1.1em;
+             font-weight: bold;
+             margin-top: 20px;
+             transition: background-color 0.2s ease, transform 0.1s ease;
+             display: block; /* Center button */
+             margin-left: auto;
+             margin-right: auto;
+        }
+        .booking-form button:hover { background-color: #218838; transform: scale(1.02); }
+        .booking-form button:active { transform: scale(0.98); }
+        .booking-form button:disabled { background-color: #aaa; cursor: not-allowed; }
+
+        #bookingMessage {
+             margin-top: 20px;
+             font-weight: bold;
+             padding: 15px;
+             border-radius: 5px;
+             display: none; /* Hidden initially */
+             text-align: center;
+        }
+        #bookingMessage.success { color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb; }
+        #bookingMessage.error { color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <!-- Navbar Section -->
+    <nav class="navbar">
+         <div class="logo">ProxHelp</div>
+         <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="/logout">Logout</a></li>
+        </ul>
+    </nav>
+
+    <section class="booking-section">
+        <h2>Confirm Your Booking</h2>
+
+        <!-- Display Professional Details -->
+        <div class="professional-details">
+            <h4>Booking Details for:</h4>
+            <p><strong>Name:</strong> <span id="profName">Loading...</span></p>
+            <p><strong>Specialization:</strong> <span id="profSpec">Loading...</span></p>
+            <p><strong>Location:</strong> <span id="profLoc">Loading...</span></p>
+            <p><strong>Price:</strong> <span id="profPrice">Loading...</span></p>
+        </div>
+
+        <!-- Booking Form -->
+        <form id="bookingForm" class="booking-form" style="display: none;"> <!-- Hide until details load -->
+            <input type="hidden" id="professionalId" name="professionalId">
+
+            <label for="bookingDate">Preferred Date:</label>
+            <input type="date" id="bookingDate" name="bookingDate" required>
+
+            <label for="bookingTime">Preferred Time (Optional):</label>
+            <input type="time" id="bookingTime" name="bookingTime">
+
+            <label for="userAddress">Your Full Address:</label>
+            <textarea id="userAddress" name="userAddress" placeholder="Enter the complete address where the service is needed (Street, Area, City, Pincode)" required></textarea>
+
+            <label for="problemDescription">Describe the Issue/Requirement:</label>
+            <textarea id="problemDescription" name="problemDescription" placeholder="Please provide details about the service you need (e.g., 'Leaking kitchen tap', 'Need math tutor for Grade 10')" required></textarea>
+
+            <button type="submit">Submit Booking Request</button>
+        </form>
+
+        <!-- Message Area -->
+        <div id="bookingMessage"></div>
+
+    </section>
+
+    <footer>
+        <p>© 2024 ProxHelp. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // --- Element References ---
+        const profNameSpan = document.getElementById('profName');
+        const profSpecSpan = document.getElementById('profSpec');
+        const profLocSpan = document.getElementById('profLoc');
+        const profPriceSpan = document.getElementById('profPrice');
+        const professionalIdInput = document.getElementById('professionalId');
+        const bookingDateInput = document.getElementById('bookingDate');
+        const bookingTimeInput = document.getElementById('bookingTime');
+        const userAddressInput = document.getElementById('userAddress');
+        const problemDescriptionInput = document.getElementById('problemDescription');
+        const bookingForm = document.getElementById('bookingForm');
+        const bookingMessageDiv = document.getElementById('bookingMessage');
+        const submitButton = bookingForm ? bookingForm.querySelector('button[type="submit"]') : null;
+
+        // --- Helper function to display messages ---
+        function showBookingMessage(message, type) {
+            if (!bookingMessageDiv) {
+                console.error("!!! bookingMessageDiv element not found.");
+                alert(`Message (${type}): ${message}`); // Fallback
+                return;
+            }
+            // Sanitize message slightly for display (basic protection)
+            bookingMessageDiv.textContent = message;
+            bookingMessageDiv.className = type; // Applies .success or .error class
+            bookingMessageDiv.style.display = 'block';
+        }
+
+        // --- 1. Get data from URL and populate details on Page Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("Booking page loaded. Parsing URL parameters...");
+            const urlParams = new URLSearchParams(window.location.search);
+            const profId = urlParams.get('profId');
+            // Decode parameters safely
+            const name = decodeURIComponent(urlParams.get('name') || '');
+            const spec = decodeURIComponent(urlParams.get('spec') || '');
+            const loc = decodeURIComponent(urlParams.get('loc') || '');
+            const price = urlParams.get('price'); // Price doesn't usually need decoding
+
+            console.log("URL Params:", { profId, name, spec, loc, price });
+
+            // Validate required elements exist
+            if (!profNameSpan || !profSpecSpan || !profLocSpan || !profPriceSpan || !professionalIdInput || !bookingForm) {
+                 console.error("Error: Essential HTML elements for booking details/form are missing.");
+                 showBookingMessage('Page error: Cannot load booking form. Please go back.', 'error');
+                 return; // Stop execution
+            }
+
+            // Validate essential parameters received
+            if (!profId || isNaN(parseInt(profId)) || parseInt(profId) <= 0 || !name) {
+                console.error("Error: Professional ID or Name missing or invalid in URL parameters.");
+                showBookingMessage('Error: Invalid professional details received. Please go back and select a professional again.', 'error');
+                bookingForm.style.display = 'none'; // Keep form hidden
+                // Clear loading text from spans
+                profNameSpan.textContent = 'Error';
+                profSpecSpan.textContent = 'N/A';
+                profLocSpan.textContent = 'N/A';
+                profPriceSpan.textContent = 'N/A';
+                return;
+            }
+
+            // Populate details
+            professionalIdInput.value = profId;
+            profNameSpan.textContent = name || 'N/A';
+            profSpecSpan.textContent = spec || 'N/A';
+            profLocSpan.textContent = loc || 'N/A';
+
+            // Format price display
+            const priceValue = parseFloat(price);
+            profPriceSpan.textContent = (!isNaN(priceValue) && priceValue > 0)
+                ? `$${priceValue.toFixed(2)}/hr` // Adjust currency/unit as needed
+                : (price === '0' ? 'Contact for price' : 'N/A'); // Handle $0 or missing price
+
+             // Set min date for bookingDate to today
+            const today = new Date().toISOString().split('T')[0];
+            if (bookingDateInput) {
+                 bookingDateInput.setAttribute('min', today);
+            }
+
+
+            console.log(`Professional details populated. ID stored: ${professionalIdInput.value}`);
+            bookingForm.style.display = 'block'; // Show the form now that details are loaded
+
+        }); // End DOMContentLoaded
+
+        // --- 2. Handle Form Submission ---
+        if (bookingForm && submitButton) {
+            bookingForm.addEventListener('submit', async (event) => {
+                event.preventDefault(); // Prevent default form submission
+                console.log("Booking form submission initiated.");
+
+                // Clear previous messages and disable button
+                bookingMessageDiv.style.display = 'none';
+                bookingMessageDiv.className = '';
+                submitButton.disabled = true;
+                submitButton.textContent = 'Submitting...';
+
+                // Read values *at submission time*
+                const formData = {
+                    professionalId: professionalIdInput.value,
+                    bookingDate: bookingDateInput.value,
+                    bookingTime: bookingTimeInput.value || null, // Send null if empty/not provided
+                    userAddress: userAddressInput.value.trim(),
+                    problemDescription: problemDescriptionInput.value.trim()
+                };
+                console.log("Form data collected:", formData);
+
+                // --- Client-Side Validation ---
+                if (!formData.professionalId || !formData.bookingDate || !formData.userAddress || !formData.problemDescription) {
+                    console.error("Validation Failed: Missing required fields.");
+                    showBookingMessage('Please fill out all required fields (Date, Address, Description).', 'error');
+                    submitButton.disabled = false; // Re-enable button
+                    submitButton.textContent = 'Submit Booking Request';
+                    return; // Stop processing
+                }
+                // Optional: More specific validation (e.g., address length)
+
+                 // Validate date is not in the past (redundant check if 'min' attribute works, but safer)
+                const selectedDate = new Date(formData.bookingDate + 'T00:00:00'); // Use local time zone midnight
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                if (selectedDate < today) {
+                     console.error("Validation Failed: Booking date is in the past.");
+                     showBookingMessage('Booking date cannot be in the past.', 'error');
+                     submitButton.disabled = false;
+                     submitButton.textContent = 'Submit Booking Request';
+                     return;
+                }
+
+
+                console.log("Client-side validation passed.");
+
+                // --- Fetch API Call to Backend ---
+                const apiUrl = '/api/bookings'; // Use relative path
+                console.log(`Sending POST request to: ${apiUrl}`);
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                             // Include credentials if your session/auth relies on cookies
+                             // 'Credentials': 'include' // Uncomment if needed, ensure CORS allows it
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    const result = await response.json(); // Assume backend always sends JSON
+                    console.log("Received response:", { status: response.status, body: result });
+
+                    if (response.ok && result.success) { // Check for 2xx status and success flag
+                        console.log("Booking successful:", result.message);
+                        showBookingMessage(result.message || 'Booking request submitted successfully!', 'success');
+                        // Optionally clear the form or redirect
+                        bookingForm.reset(); // Clear form fields
+                         // Keep button disabled after successful submission
+                         submitButton.textContent = 'Submitted!';
+
+                    } else {
+                         // Handle errors reported by the server (e.g., validation errors, conflicts, DB errors)
+                        console.error(`Server Error (${response.status}):`, result.message || 'Unknown server error');
+                        // Show the specific error message from the backend
+                        showBookingMessage(`Booking failed: ${result.message || `Server error ${response.status}. Please try again.`}`, 'error');
+                        submitButton.disabled = false; // Re-enable button on failure
+                        submitButton.textContent = 'Submit Booking Request';
+                    }
+
+                } catch (error) { // Handle network errors or fetch API issues
+                    console.error('Network or Fetch Error submitting booking:', error);
+                    showBookingMessage(`Network error: ${error.message}. Please check your connection or try again later.`, 'error');
+                    submitButton.disabled = false; // Re-enable button
+                    submitButton.textContent = 'Submit Booking Request';
+                }
+            }); // End form submit listener
+        } else {
+             console.error("Booking form or submit button not found on page load!");
+             // Display error if form couldn't be found earlier
+             if (!bookingForm) showBookingMessage("Critical page error: Booking form element missing.", "error");
+        }
+
+    </script>
+
+</body>
+</html>
